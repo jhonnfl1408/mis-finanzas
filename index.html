@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis Finanzas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f5f7fb;
+            color: #1e293b;
+        }
+        h1 {
+            text-align: center;
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-top: -0.25rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            margin-top: 0;
+            font-weight: 500;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .badge {
+            font-size: 0.8rem;
+            background: #e2e8f0;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 400;
+            color: #334155;
+        }
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .list li:last-child {
+            border-bottom: none;
+        }
+        .list .amount {
+            font-weight: 600;
+        }
+        .list .income .amount {
+            color: #0b7e4b;
+        }
+        .list .expense .amount {
+            color: #b91c1c;
+        }
+        .btn {
+            background: #eef2f6;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn:hover {
+            background: #d1d9e6;
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+        .btn-primary {
+            background: #1e293b;
+            color: white;
+            padding: 0.5rem 1.2rem;
+        }
+        .btn-primary:hover {
+            background: #0f172a;
+        }
+        .form-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .form-row input {
+            flex: 1 1 150px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #d1d5db;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+        }
+        .form-row input:focus {
+            outline: 2px solid #94a3b8;
+            outline-offset: 1px;
+        }
+        .total {
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: right;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .alert {
+            background: #fef9c3;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1rem;
+            color: #854d0e;
+            display: none;
+        }
+        .alert.show {
+            display: block;
+        }
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>💰 Mis Finanzas</h1>
+    <p class="subtitle">Datos guardados en el servidor · <span id="status">🟢 Conectado</span></p>
+
+    <div id="alert" class="alert"></div>
+
+    <div class="card" id="ingresos-section">
+        <h2>📈 Ingresos <span class="badge" id="ingresos-count">0</span></h2>
+        <ul class="list" id="ingresos-list"></ul>
+        <div class="form-row">
+            <input type="text" id="new-ingreso-desc" placeholder="Descripción" />
+            <input type="number" id="new-ingreso-monto" placeholder="Monto" step="0.01" />
+            <button class="btn btn-primary" id="add-ingreso-btn">Agregar</button>
+        </div>
+        <div class="total" id="total-ingresos">Total: $0.00</div>
+    </div>
+
+    <div class="card" id="gastos-section">
+        <h2>📉 Gastos <span class="badge" id="gastos-count">0</span></h2>
+        <ul class="list" id="gastos-list"></ul>
+        <div class="form-row">
+            <input type="text" id="new-gasto-desc" placeholder="Descripción" />
+            <input type="number" id="new-gasto-monto" placeholder="Monto" step="0.01" />
+            <button class="btn btn-primary" id="add-gasto-btn">Agregar</button>
+        </div>
+        <div class="total" id="total-gastos">Total: $0.00</div>
+    </div>
+
+    <div class="card" style="background:#f1f5f9;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:500;">Balance neto</span>
+            <span id="balance" style="font-size:1.6rem; font-weight:700;">$0.00</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        Los datos se guardan automáticamente en el servidor · <a href="#" id="reset-btn" style="color:#94a3b8;text-decoration:underline;cursor:pointer;">Reiniciar datos</a>
+    </div>
+
+    <script>
+        // ============================================================
+        //  CONFIGURACIÓN
+        // ============================================================
+        const API_URL = 'api.php';
+
+        // Estado global
+        let finances = { ingresos: [], gastos: [] };
+
+        // ============================================================
+        //  FUNCIONES DE RED (FETCH)
+        // ============================================================
+        async function loadData() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                // Asegurar estructura
+                if (!data.ingresos || !data.gastos) {
+                    data.ingresos = data.ingresos || [];
+                    data.gastos = data.gastos || [];
+                }
+                return data;
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                showAlert('Error al cargar datos del servidor. Se usarán datos vacíos.', 'error');
+                return { ingresos: [], gastos: [] };
+            }
+        }
+
+        async function saveData(data) {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const result = await res.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Error desconocido del servidor');
+                }
+                document.getElementById('status').textContent = '🟢 Guardado';
+                return true;
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                showAlert('Error al guardar los datos en el servidor.', 'error');
+                document.getElementById('status').textContent = '🔴 Error';
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  ALERTAS
+        // ============================================================
+        function showAlert(msg, type = 'info') {
+            const alertEl = document.getElementById('alert');
+            alertEl.textContent = msg;
+            alertEl.className = 'alert show';
+            if (type === 'error') {
+                alertEl.style.background = '#fee2e2';
+                alertEl.style.color = '#991b1b';
+            } else {
+                alertEl.style.background = '#fef9c3';
+                alertEl.style.color = '#854d0e';
+            }
+            // Ocultar después de 5 segundos
+            clearTimeout(window.alertTimeout);
+            window.alertTimeout = setTimeout(() => {
+                alertEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // ============================================================
+        //  RENDERIZADO
+        // ============================================================
+        function render() {
+            // Ingresos
+            const ingList = document.getElementById('ingresos-list');
+            ingList.innerHTML = finances.ingresos.map((item, idx) => `
+                <li class="income">
+                    <span>${escapeHtml(item.descripcion || 'Sin descripción')}</span>
+                    <span>
+                        <span class="amount">$${Number(item.monto).toFixed(2)}</span>
+                        <button class="btn btn-danger" data-idx="${idx}" data-type="ingreso">Eliminar</button>
+                    </span>
+                </li>
+            `).join('');
+            document.getElementById('ingresos-count').textContent = finances.ingresos.length;
+            const totalIng = finances.ingresos.reduce((sum, i) => sum + Number(i.monto), 0);
+            document.getElementById('total-ingresos').textContent = `Total: $${totalIng.toFixed(2)}`;
+
+            // Gastos
+            const gasList = document.getElementById('gastos-list');
+            gasList.innerHTML = finances.gastos.map((item, idx) => `
+                <li class="expense">
+                    <span>${escapeHtml(item.descripcion || 'Sin descripción')}</span>
+                    <span>
+                        <span class="amount">$${Number(item.monto).toFixed(2)}</span>
+                        <button class="btn btn-danger" data-idx="${idx}" data-type="gasto">Eliminar</button>
+                    </span>
+                </li>
+            `).join('');
+            document.getElementById('gastos-count').textContent = finances.gastos.length;
+            const totalGas = finances.gastos.reduce((sum, i) => sum + Number(i.monto), 0);
+            document.getElementById('total-gastos').textContent = `Total: $${totalGas.toFixed(2)}`;
+
+            // Balance
+            const balance = totalIng - totalGas;
+            const balanceEl = document.getElementById('balance');
+            balanceEl.textContent = `$${balance.toFixed(2)}`;
+            balanceEl.style.color = balance >= 0 ? '#0b7e4b' : '#b91c1c';
+
+            // Actualizar estado de conexión (si todo está bien)
+            document.getElementById('status').textContent = '🟢 Conectado';
+        }
+
+        // Helper para escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        //  ACCIONES (CRUD)
+        // ============================================================
+        async function addIngreso() {
+            const descInput = document.getElementById('new-ingreso-desc');
+            const montoInput = document.getElementById('new-ingreso-monto');
+            const desc = descInput.value.trim();
+            const monto = parseFloat(montoInput.value);
+            if (!desc || isNaN(monto) || monto <= 0) {
+                showAlert('Ingresa una descripción y un monto válido (mayor que 0).', 'error');
+                return;
+            }
+            finances.ingresos.push({ descripcion: desc, monto });
+            descInput.value = '';
+            montoInput.value = '';
+            const ok = await saveData(finances);
+            if (ok) render();
+        }
+
+        async function addGasto() {
+            const descInput = document.getElementById('new-gasto-desc');
+            const montoInput = document.getElementById('new-gasto-monto');
+            const desc = descInput.value.trim();
+            const monto = parseFloat(montoInput.value);
+            if (!desc || isNaN(monto) || monto <= 0) {
+                showAlert('Ingresa una descripción y un monto válido (mayor que 0).', 'error');
+                return;
+            }
+            finances.gastos.push({ descripcion: desc, monto });
+            descInput.value = '';
+            montoInput.value = '';
+            const ok = await saveData(finances);
+            if (ok) render();
+        }
+
+        async function deleteItem(type, idx) {
+            if (type === 'ingreso') {
+                finances.ingresos.splice(idx, 1);
+            } else if (type === 'gasto') {
+                finances.gastos.splice(idx, 1);
+            }
+            const ok = await saveData(finances);
+            if (ok) render();
+        }
+
+        async function resetData() {
+            if (!confirm('¿Estás seguro de eliminar todos los datos?')) return;
+            finances = { ingresos: [], gastos: [] };
+            const ok = await saveData(finances);
+            if (ok) render();
+        }
+
+        // ============================================================
+        //  EVENT LISTENERS
+        // ============================================================
+        document.getElementById('add-ingreso-btn').addEventListener('click', addIngreso);
+        document.getElementById('add-gasto-btn').addEventListener('click', addGasto);
+
+        // Delegación de eventos para botones eliminar (dinámicos)
+        document.getElementById('ingresos-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.type === 'ingreso') {
+                const idx = parseInt(btn.dataset.idx, 10);
+                deleteItem('ingreso', idx);
+            }
+        });
+        document.getElementById('gastos-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.type === 'gasto') {
+                const idx = parseInt(btn.dataset.idx, 10);
+                deleteItem('gasto', idx);
+            }
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            resetData();
+        });
+
+        // Enter en los inputs para agregar
+        document.getElementById('new-ingreso-desc').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addIngreso();
+        });
+        document.getElementById('new-ingreso-monto').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addIngreso();
+        });
+        document.getElementById('new-gasto-desc').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addGasto();
+        });
+        document.getElementById('new-gasto-monto').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addGasto();
+        });
+
+        // ============================================================
+        //  INICIO
+        // ============================================================
+        async function init() {
+            const data = await loadData();
+            finances = data;
+            render();
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
